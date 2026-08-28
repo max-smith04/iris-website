@@ -32,14 +32,25 @@ window.Sound = (function () {
     return a;
   }
 
-  function play(name, fallback) {
-    if (!unlocked || muted) return;
+  /* onBlocked fires when the browser refuses to play before a gesture;
+     onMissing fires when the file itself is unusable. They are different
+     problems: the first is worth retrying later, the second never is. */
+  function play(name, onMissing, onBlocked) {
+    if (muted) return;
     var a = clip(name);
-    if (!a) { if (fallback) fallback(); return; }
+    if (!a) { if (onMissing) onMissing(); return; }
     a.volume = 1;
     try { a.currentTime = 0; } catch (e) {}
     var p = a.play();
-    if (p && p.catch) p.catch(function () { if (fallback) fallback(); });
+    if (p && p.catch) {
+      p.catch(function (err) {
+        if (err && err.name === 'NotAllowedError') {
+          if (onBlocked) onBlocked();
+        } else if (onMissing) {
+          onMissing();
+        }
+      });
+    }
   }
 
   /* ---------- synthesis, for the error ding ---------- */
@@ -87,18 +98,21 @@ window.Sound = (function () {
     o.stop(at + dur + 0.05);
   }
 
+  /* Safe to call as often as you like: it builds the audio graph once and
+     nudges a suspended context awake, which is what a real gesture allows. */
   function unlock() {
-    if (unlocked) return;
-    unlocked = true;
     build();
     if (ctx && ctx.state === 'suspended') ctx.resume();
-    /* only the startup sound has to be instant, so only it is preloaded —
-       shutdown is fetched when someone actually turns her off */
-    try { clip('startup').load(); } catch (e) {}
+    if (!unlocked) {
+      unlocked = true;
+      /* only the startup sound has to be instant, so only it is preloaded —
+         shutdown is fetched when someone actually turns her off */
+      try { clip('startup').load(); } catch (e) {}
+    }
   }
 
-  function startup() {
-    play('startup', synthStartup);
+  function startup(onBlocked) {
+    play('startup', synthStartup, onBlocked);
   }
 
   function shutdown() {
@@ -107,6 +121,7 @@ window.Sound = (function () {
 
   /* if a file is missing or blocked, these stand in for it */
   function synthStartup() {
+    build();
     if (!ctx || muted) return;
     var t = ctx.currentTime + 0.05;
     [[440.00, 0.00, 0.30], [554.37, 0.26, 0.28],
@@ -119,6 +134,7 @@ window.Sound = (function () {
   }
 
   function synthShutdown() {
+    build();
     if (!ctx || muted) return;
     var t = ctx.currentTime + 0.05;
     [[659.25, 0.00, 0.42], [523.25, 0.30, 0.40],
@@ -131,7 +147,7 @@ window.Sound = (function () {
 
   /* the error ding: two blunt descending tones with a bit of edge */
   function error() {
-    if (!unlocked || muted) return;
+    if (muted) return;
     build();
     if (!ctx) return;
     var t = ctx.currentTime + 0.01;

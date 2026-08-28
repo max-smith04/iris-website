@@ -18,7 +18,7 @@
 
   /* ---------- the app catalogue ---------- */
   var APPS = {
-    iris:  { title: 'IRIS',          icon: '#ic-car',    tpl: '#tpl-iris',  w: 720, h: 560, status: 'Iris · 2022 Suzuki Swift GL', bias: -230 },
+    iris:  { title: 'IRIS',          icon: '#ic-car',    tpl: '#tpl-iris',  w: 720, h: 560, status: 'Iris · 2022 Suzuki Swift GL' },
     about: { title: 'About Me',      icon: '#ic-folder', tpl: '#tpl-about', w: 660, h: 540, status: '8 objects' },
     rate:  { title: 'Rate Me',       icon: '#ic-star',   tpl: '#tpl-rate',  w: 640, h: 580, status: 'Connected to iris-db' },
     pics:  { title: 'My Pictures',   icon: '#ic-pics',   tpl: '#tpl-pics',  w: 700, h: 520, status: '3 objects' },
@@ -97,7 +97,7 @@
     var w = Math.min(app.w, d.w - 24);
     var h = Math.min(app.h, d.h - 24);
     var offset = (spawn++ % 6) * 26;
-    var x = Math.max(8, Math.round((d.w - w) / 2 + (app.bias || -60)) + offset);
+    var x = Math.max(8, Math.round((d.w - w) / 2 - 60) + offset);
     var y = Math.max(8, Math.round((d.h - h) / 2 - 30) + offset);
 
     var el = document.createElement('section');
@@ -429,8 +429,8 @@
   vol.title = window.Sound.isMuted() ? 'Sound is off' : 'Sound is on';
 
   /* ============================================================
-     BOOT — no splash, no progress bar: a black screen that lifts
-     once the startup sound has somewhere to play.
+     BOOT — no splash and no progress bar: half a second of black, then
+     the desktop. Nothing opens on its own; the icons are the way in.
      ============================================================ */
   var boot = $('#boot');
   var bootTimer = null;
@@ -443,9 +443,6 @@
     boot.classList.add('gone');
     document.body.classList.add('booted');
     desktop.setAttribute('aria-hidden', 'false');
-    setTimeout(function () {
-      if (!open.iris) openWin('iris');
-    }, 320);
   }
 
   function runBoot(restart) {
@@ -454,21 +451,26 @@
     document.body.classList.remove('booted');
     desktop.setAttribute('aria-hidden', 'true');
     if (restart) window.Sound.startup();
-    bootTimer = setTimeout(finishBoot, 2200);
+    bootTimer = setTimeout(finishBoot, 500);
   }
 
-  /* Audio is on by default, but no browser will let us make a sound before
-     the visitor touches something — so the startup sound rides on the first
-     click or keypress, which on the black screen is also what lifts it. */
-  function firstGesture() {
-    window.Sound.unlock();
-    window.Sound.startup();
-    document.removeEventListener('pointerdown', firstGesture, true);
-    document.removeEventListener('keydown', firstGesture, true);
-  }
-  document.addEventListener('pointerdown', firstGesture, true);
-  document.addEventListener('keydown', firstGesture, true);
+  /* Try the startup sound the moment the page loads. Most browsers block audio
+     until the visitor has interacted with the page, so if that attempt is
+     refused we arm it on the first click or keypress instead — the sound is
+     never muted, it just waits for permission. */
+  window.Sound.unlock();
+  window.Sound.startup(function blocked() {
+    function firstGesture() {
+      window.Sound.unlock();
+      window.Sound.startup();
+      document.removeEventListener('pointerdown', firstGesture, true);
+      document.removeEventListener('keydown', firstGesture, true);
+    }
+    document.addEventListener('pointerdown', firstGesture, true);
+    document.addEventListener('keydown', firstGesture, true);
+  });
 
   boot.addEventListener('click', finishBoot);
-  bootTimer = setTimeout(finishBoot, 2600);
+
+  bootTimer = setTimeout(finishBoot, 500);
 })();

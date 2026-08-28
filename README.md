@@ -1,9 +1,9 @@
 # IRIS
 
 A small personal website for Iris — a silver 2022 Suzuki Swift GL — dressed up as
-a Windows XP desktop. It loads in from a black screen with the XP startup sound,
-has draggable windows, a Start menu and a My Pictures folder, and visitors can
-give her a star rating that lands in Postgres.
+a Windows XP desktop. It fades in from black with the XP startup sound, has
+draggable windows, a Start menu and a My Pictures folder, and visitors can give
+her a star rating that lands in Postgres.
 
 Plain HTML, CSS and JavaScript. No framework, no bundler, no build step. The only
 server-side piece is one Vercel function talking to Neon.
@@ -118,12 +118,14 @@ If a sound file is missing or the browser refuses to play it, `js/sound.js` fall
 back to a synthesised stand-in rather than failing — so nothing breaks, it just
 sounds wrong.
 
-**The chime waits for you.** Browsers refuse to play audio before a real gesture,
-so the page opens on a black screen with a faint "click anywhere". That click both
-lifts the screen and releases the startup sound. If nobody clicks, the desktop
-fades in on its own after about 2.5 seconds and the sound plays on the first
-interaction after that. Audio is on by default; the tray speaker mutes it and
-remembers the choice.
+**Boot.** Half a second of black, then the desktop fades in. Nothing opens on its
+own — the desktop icons and the Start menu are the way in.
+
+**The startup sound tries immediately.** It is attempted the moment the page
+loads. Most browsers block audio until the visitor has interacted with the page,
+so if that attempt is refused the sound is armed on the first click or keypress
+instead — it is never muted, it just waits for permission. Audio is on by default;
+the tray speaker mutes it and remembers the choice.
 
 **The wallpaper** is `assets/wallpaper.jpg` — your own Bliss composite, dropped in
 as-is (just re-encoded progressive to speed up first paint). Replace the file to

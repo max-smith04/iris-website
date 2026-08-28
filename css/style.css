@@ -51,18 +51,9 @@ img{ max-width:100%; display:block; }
 #boot{
   position:fixed; inset:0; z-index:900;
   background:#000;
-  display:grid; place-items:end center;
-  cursor:pointer;
-  transition: opacity .85s ease, visibility .85s;
+  transition: opacity .8s ease, visibility .8s;
 }
 #boot.gone{ opacity:0; visibility:hidden; pointer-events:none; }
-.boot-hint{
-  margin:0 0 12vh; font-size:11px; letter-spacing:.34em; text-indent:.34em;
-  text-transform:uppercase; color:#6a6a6a;
-  animation: hintIn 1.2s ease .45s both, hintPulse 2.8s ease-in-out 1.6s infinite;
-}
-@keyframes hintIn{ from{ opacity:0 } to{ opacity:.9 } }
-@keyframes hintPulse{ 0%,100%{ opacity:.9 } 50%{ opacity:.35 } }
 
 /* ============================================================
    DESKTOP
