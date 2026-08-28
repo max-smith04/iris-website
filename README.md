@@ -121,8 +121,9 @@ the signal for the page to keep the default text written into `tpl-notes`. That
 way the default lives in exactly one place and the window still renders instantly
 with the database cold or unreachable.
 
-- `content` is required and must not be blank, is capped at **4000** chars, and
-  keeps newlines and tabs while every other control character is stripped.
+- `content` replaces the file wholesale. It is capped at **4000** chars and keeps
+  newlines and tabs while every other control character is stripped. The one
+  thing rejected is an entirely blank file.
 - `name` is optional and capped at **40** chars.
 - Both are HTML-escaped on the way out, same as ratings.
 
@@ -166,16 +167,20 @@ in My Pictures, reachable from the desktop icon, the Start menu, or the button o
 the IRIS page. Double-click a thumbnail to open it in the picture viewer, which
 reuses a single window.
 
-**The glovebox is a shared, editable file.** Anyone can hit Edit and rewrite it,
-so treat it like a guestbook. Saves are **append-only rows**, not an UPDATE — the
-newest row is what the site shows, and every previous version is still in the
-table. If somebody wipes it, you can read the history and paste an old one back:
+**The glovebox is a shared file that anyone can rewrite.** Hit Edit and the whole
+thing becomes a textarea: add lines, change lines, delete lines, including ones
+somebody else wrote. A save replaces the file with exactly what is in the box —
+nothing is merged and nothing is protected. The only rule is that it cannot be
+saved completely blank; one character is enough. Ctrl/Cmd-S saves, Esc cancels,
+and Tab indents instead of leaving the box.
+
+Under it, each save *inserts* a row rather than updating one. That is a storage
+detail with no effect on editing — the newest row is the file — and it exists so
+that if someone empties it out of spite you can read an old version back:
 
 ```sql
 SELECT id, editor, created_at, content FROM glovebox ORDER BY id DESC LIMIT 20;
 ```
-
-Ctrl/Cmd-S saves, Esc cancels, and Tab indents instead of leaving the box.
 
 **Editing the writing.** Every window's contents are `<template>` blocks near the
 bottom of `index.html` — `tpl-iris`, `tpl-about`, `tpl-rate`, `tpl-pics`,

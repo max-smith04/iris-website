@@ -133,7 +133,7 @@
       </div>
       <p class="lead">Hello. I&rsquo;m Iris.</p>
       <p>I am one and a bit tonnes of quietly confident silver hatchback, and this is my desktop. I do the school run, the mountain pass, the 11&nbsp;p.m. milk run, and the long empty stretch of the N7 where the radio goes to static and nobody minds.</p>
-      <p>Have a poke around. There&rsquo;s a folder about me, and a page where you can tell me what you really think &mdash; be gentle, I have feelings and a slightly noisy wheel bearing. My glovebox is unlocked too: open <b>Glovebox.txt</b> and put something in it.</p>
+      <p>Have a poke around. There&rsquo;s a folder about me, and a page where you can tell me what you really think &mdash; be gentle, I have feelings and a slightly noisy wheel bearing. My glovebox is unlocked too: open <b>Glovebox.txt</b> and rewrite whatever you like in there &mdash; add to it, correct it, throw things out of it.</p>
       <div class="quickbar">
         <button class="xp-btn" data-open="pics">My Pictures</button>
         <button class="xp-btn" data-open="about">Open &ldquo;About Me&rdquo;</button>
@@ -251,7 +251,8 @@
   <template id="tpl-notes">
     <div class="notepad">
       <div class="np-bar">
-        <button type="button" class="xp-btn small" id="gb-edit">Edit</button>
+        <button type="button" class="xp-btn small" id="gb-edit"
+                title="Edit the whole file — add, change or delete anything in it">Edit</button>
         <button type="button" class="xp-btn small primary" id="gb-save" hidden>Save</button>
         <button type="button" class="xp-btn small" id="gb-cancel" hidden>Cancel</button>
         <label class="np-who" id="gb-who" hidden>
@@ -278,9 +279,11 @@
  aux cable     : yes. I am that old and that useful.
 
 ------------------------------------------
-add your own. it is a shared glovebox.</pre>
+this is a shared glovebox. hit Edit and change
+anything in here — add a line, fix a line, or
+delete one that has no business being here.</pre>
       <textarea id="gb-area" spellcheck="false" maxlength="4000" hidden
-                aria-label="Glovebox contents"></textarea>
+                aria-label="Glovebox contents — edit or delete any of it"></textarea>
     </div>
   </template>
 

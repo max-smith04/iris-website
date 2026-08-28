@@ -1,15 +1,21 @@
 /* ============================================================
    /api/glovebox — Vercel serverless function.
 
-   One shared, editable text file. Anyone can rewrite it.
+   One shared, fully editable text file. A save REPLACES the whole
+   thing with whatever was posted, so anyone can add lines, change
+   lines or delete lines — including lines somebody else wrote.
 
    GET   -> { content, editor, updated_at }
    POST  -> { content, editor, updated_at }   (after saving)
 
    `content` is null when nobody has ever saved, which tells the
-   client to keep whatever default text is in the page. Saves are
-   append-only rows rather than an UPDATE, so every past version of
-   the glovebox is still in the table if someone wipes it:
+   client to keep whatever default text is in the page.
+
+   Each save inserts a row rather than updating one, purely so old
+   versions survive as a safety net. That is a storage detail and
+   changes nothing about editing: the newest row is the file, and
+   the previous ones are only there to be read back by hand if
+   someone empties it out of spite:
 
      SELECT content, editor, created_at FROM glovebox ORDER BY id DESC;
 
@@ -114,8 +120,10 @@ export default async function handler(req, res) {
       const content = cleanText(body.content, MAX_CONTENT);
       const editor = cleanName(body.name);
 
+      /* the only thing you cannot do is blank it entirely — one character is
+         enough, this is just a guard against an accidental select-all-delete */
       if (!content.trim()) {
-        return res.status(400).json({ error: 'The glovebox cannot be completely empty.' });
+        return res.status(400).json({ error: 'Leave her at least one character.' });
       }
 
       await ensureSchema();

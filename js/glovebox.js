@@ -9,6 +9,10 @@
    which is safe precisely because the string is already escaped:
    parsing "&lt;script&gt;" can only ever produce a text node.
    ============================================================ */
+/* The whole file is editable: whatever is in the textarea when you hit Save
+   becomes the new glovebox, so lines can be changed or deleted, not just added.
+   Old versions stay in the table as a safety net, but they are never merged
+   with a save — the newest one simply wins. */
 (function () {
   'use strict';
 
@@ -148,7 +152,7 @@
       var text = area.value;
       if (!text.trim()) {
         window.IrisDialog('Glovebox.txt',
-          '<strong>She will not file an empty glovebox.</strong>Put something in it — even just the chocolate.');
+          '<strong>She will not file a completely empty glovebox.</strong>Clear out as much as you like, but leave her something &mdash; even just the chocolate.');
         return;
       }
 
