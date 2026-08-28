@@ -32,24 +32,34 @@ window.Sound = (function () {
     return a;
   }
 
-  /* onBlocked fires when the browser refuses to play before a gesture;
-     onMissing fires when the file itself is unusable. They are different
-     problems: the first is worth retrying later, the second never is. */
-  function play(name, onMissing, onBlocked) {
+  /* Reports success rather than failure, deliberately. A blocked play()
+     rejects with NotAllowedError on Chrome, but Safari has been known to
+     throw synchronously or reject under other names, and very old browsers
+     return no promise at all. Callers cannot reliably detect "blocked", so
+     they stay armed for a gesture and only stand down once onPlayed fires. */
+  function play(name, onMissing, onPlayed) {
     if (muted) return;
     var a = clip(name);
     if (!a) { if (onMissing) onMissing(); return; }
     a.volume = 1;
     try { a.currentTime = 0; } catch (e) {}
-    var p = a.play();
-    if (p && p.catch) {
-      p.catch(function (err) {
-        if (err && err.name === 'NotAllowedError') {
-          if (onBlocked) onBlocked();
-        } else if (onMissing) {
-          onMissing();
+
+    var p;
+    try {
+      p = a.play();
+    } catch (e) {
+      return;                       /* refused outright; the gesture path retries */
+    }
+    if (p && p.then) {
+      p.then(
+        function () { if (onPlayed) onPlayed(); },
+        function (err) {
+          /* only a genuinely unusable file is worth falling back to synthesis for */
+          if (err && err.name !== 'NotAllowedError' && err.name !== 'AbortError' && onMissing) onMissing();
         }
-      });
+      );
+    } else {
+      setTimeout(function () { if (!a.paused && onPlayed) onPlayed(); }, 250);
     }
   }
 
@@ -98,29 +108,34 @@ window.Sound = (function () {
     o.stop(at + dur + 0.05);
   }
 
-  /* Safe to call as often as you like: it builds the audio graph once and
-     nudges a suspended context awake, which is what a real gesture allows. */
-  function unlock() {
-    build();
-    if (ctx && ctx.state === 'suspended') ctx.resume();
-    if (!unlocked) {
-      unlocked = true;
-      /* only the startup sound has to be instant, so only it is preloaded —
-         shutdown is fetched when someone actually turns her off */
-      try { clip('startup').load(); } catch (e) {}
-    }
+  /* Fetch the startup file early. Deliberately does NOT touch the
+     AudioContext: constructing one before a gesture makes Chrome log
+     "The AudioContext was not allowed to start", and nothing needs it yet. */
+  function preload() {
+    try { clip('startup').load(); } catch (e) {}
   }
 
-  function startup(onBlocked) {
-    play('startup', synthStartup, onBlocked);
+  /* Call from a real gesture. Builds the audio graph and wakes a suspended
+     context, which is the only moment a browser permits either. */
+  function unlock() {
+    unlocked = true;
+    build();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    preload();
+  }
+
+  function startup(onPlayed) {
+    play('startup', synthStartup, onPlayed);
   }
 
   function shutdown() {
     play('shutdown', synthShutdown);
   }
 
-  /* if a file is missing or blocked, these stand in for it */
+  /* stand-ins for a missing file. They need the AudioContext, so they stay
+     quiet until a gesture has let us build one rather than warning about it. */
   function synthStartup() {
+    if (!unlocked) return;
     build();
     if (!ctx || muted) return;
     var t = ctx.currentTime + 0.05;
@@ -134,6 +149,7 @@ window.Sound = (function () {
   }
 
   function synthShutdown() {
+    if (!unlocked) return;
     build();
     if (!ctx || muted) return;
     var t = ctx.currentTime + 0.05;
@@ -147,7 +163,7 @@ window.Sound = (function () {
 
   /* the error ding: two blunt descending tones with a bit of edge */
   function error() {
-    if (muted) return;
+    if (muted || !unlocked) return;
     build();
     if (!ctx) return;
     var t = ctx.currentTime + 0.01;
@@ -173,6 +189,7 @@ window.Sound = (function () {
   }
 
   return {
+    preload: preload,
     unlock: unlock,
     startup: startup,
     shutdown: shutdown,

@@ -153,10 +153,22 @@ sounds wrong.
 own — the desktop icons and the Start menu are the way in.
 
 **The startup sound tries immediately.** It is attempted the moment the page
-loads. Most browsers block audio until the visitor has interacted with the page,
-so if that attempt is refused the sound is armed on the first click or keypress
-instead — it is never muted, it just waits for permission. Audio is on by default;
-the tray speaker mutes it and remembers the choice.
+loads, and every phone — plus most desktop browsers — will refuse that until the
+visitor has touched something.
+
+Detecting the refusal is not reliable: Chrome rejects with `NotAllowedError`,
+Safari has thrown synchronously and rejected under other names, and old browsers
+return no promise at all. So the code does not try to detect it. The first
+gesture is **always** armed, and only stands down once the sound reports that it
+is actually playing. Arming it inside the failure handler instead is what used to
+make the sound work on desktop but stay silent on a phone until you shut down and
+restarted.
+
+The AudioContext — needed only for the synthesised error ding — is likewise built
+on that first gesture, never at load, because constructing one early makes Chrome
+log *"The AudioContext was not allowed to start"*.
+
+Audio is on by default; the tray speaker mutes it and remembers the choice.
 
 **The wallpaper** is `assets/wallpaper.jpg` — your own Bliss composite, dropped in
 as-is (just re-encoded progressive to speed up first paint). Replace the file to

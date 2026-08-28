@@ -452,21 +452,30 @@
     bootTimer = setTimeout(finishBoot, 500);
   }
 
-  /* Try the startup sound the moment the page loads. Most browsers block audio
-     until the visitor has interacted with the page, so if that attempt is
-     refused we arm it on the first click or keypress instead — the sound is
-     never muted, it just waits for permission. */
-  window.Sound.unlock();
-  window.Sound.startup(function blocked() {
-    function firstGesture() {
-      window.Sound.unlock();
-      window.Sound.startup();
-      document.removeEventListener('pointerdown', firstGesture, true);
-      document.removeEventListener('keydown', firstGesture, true);
-    }
-    document.addEventListener('pointerdown', firstGesture, true);
-    document.addEventListener('keydown', firstGesture, true);
-  });
+  /* The startup sound is attempted at load, but most browsers — and every
+     phone — refuse audio until the visitor has touched the page. Detecting
+     that refusal is unreliable across browsers, so instead the first gesture
+     is ALWAYS armed and only stands down once the sound is confirmed playing.
+     Getting this backwards is why it used to work on desktop but not on a
+     phone until you shut down and restarted. */
+  var armed = true;
+  function standDown() {
+    if (!armed) return;
+    armed = false;
+    document.removeEventListener('pointerdown', firstGesture, true);
+    document.removeEventListener('keydown', firstGesture, true);
+  }
+  function firstGesture() {
+    if (!armed) return;
+    standDown();
+    window.Sound.unlock();          /* an AudioContext may only be built here */
+    window.Sound.startup();
+  }
+  document.addEventListener('pointerdown', firstGesture, true);
+  document.addEventListener('keydown', firstGesture, true);
+
+  window.Sound.preload();
+  window.Sound.startup(standDown);  /* if the browser does allow it, disarm */
 
   boot.addEventListener('click', finishBoot);
 
