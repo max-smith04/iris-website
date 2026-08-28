@@ -215,5 +215,5 @@ HTML in `tpl-about`; the glovebox's starting text is the `<pre>` inside
 `<template>`, and a desktop icon or Start-menu entry with `data-open="yourid"`.
 Anything anywhere with `data-open` opens that window.
 
-**On a phone** windows open maximised and dragging is off; the taskbar, Start menu
-and picture viewer still work.
+**On a phone** windows open at a size that leaves the wallpaper showing around
+them, and can be dragged, resized or maximised by hand just like on a desktop.

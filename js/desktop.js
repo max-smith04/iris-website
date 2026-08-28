@@ -94,11 +94,12 @@
 
     var d = deskRect();
     var small = isSmall();
-    var w = Math.min(app.w, d.w - 24);
-    var h = Math.min(app.h, d.h - 24);
-    var offset = (spawn++ % 6) * 26;
-    var x = Math.max(8, Math.round((d.w - w) / 2 - 60) + offset);
-    var y = Math.max(8, Math.round((d.h - h) / 2 - 30) + offset);
+    var w = Math.min(app.w, d.w - (small ? 30 : 24));
+    var h = Math.min(app.h, d.h - (small ? 86 : 24));
+    var offset = (spawn++ % 6) * (small ? 10 : 26);
+    /* on a phone there is no room for the desktop-style cascade bias, so centre it */
+    var x = Math.max(8, Math.round((d.w - w) / 2) + (small ? 0 : -60) + offset);
+    var y = Math.max(8, Math.round((d.h - h) / 2) - (small ? 14 : 30) + offset);
 
     var el = document.createElement('section');
     el.className = 'win';
@@ -151,7 +152,6 @@
     dragify(el, $('.win-title', el), id);
     resizify(el, $('.win-grip', el));
 
-    if (small) toggleMax(id, true);
     focusWin(id);
     el.dispatchEvent(new CustomEvent('iris:opened', { bubbles: true, detail: { id: id } }));
     document.dispatchEvent(new CustomEvent('iris:windowopened', { detail: { id: id, el: el } }));
