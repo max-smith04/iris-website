@@ -2,8 +2,8 @@
 
 A small personal website for Iris — a silver 2022 Suzuki Swift GL — dressed up as
 a Windows XP desktop. It fades in from black with the XP startup sound, has
-draggable windows, a Start menu and a My Pictures folder, and visitors can give
-her a star rating that lands in Postgres.
+draggable windows, a Start menu and a My Pictures folder. Visitors can give her a
+star rating and rewrite the contents of her glovebox; both land in Postgres.
 
 Plain HTML, CSS and JavaScript. No framework, no bundler, no build step. The only
 server-side piece is one Vercel function talking to Neon.
@@ -68,8 +68,10 @@ css/style.css           XP (Luna Blue) chrome, hand-rolled
 js/sound.js             startup + shutdown sounds, and the synthesised error ding
 js/desktop.js           boot, window manager, taskbar, Start menu, clock, picture viewer
 js/ratings.js           the Rate Me widget
+js/glovebox.js          the editable Glovebox.txt
 api/ratings.js          GET + POST, Neon, server-side validation and escaping
-sql/schema.sql          the one table
+api/glovebox.js         GET + POST, the shared editable text file
+sql/schema.sql          both tables
 assets/wallpaper.jpg    the desktop background
 assets/pictures/        the three photos (full frame) plus their thumbnails
 assets/audio/           startup.mp3, shutdown.mp3
@@ -102,6 +104,32 @@ That last point matters if you touch `js/ratings.js`: `name` and `comment` are
 injected with `innerHTML` *because* they arrive pre-escaped, and the two halves
 have to change together. Swap one to `textContent` on its own and visitors will
 start seeing `&amp;` in their own comments.
+
+### Glovebox
+
+`GET /api/glovebox`
+
+```json
+{ "content": "GLOVEBOX.TXT\n…", "editor": "Max", "updated_at": "2026-08-28T20:47:15.000Z" }
+```
+
+`POST /api/glovebox` with `{ "content": "…", "name": "optional" }` saves and
+returns the same shape with `201`.
+
+`content` comes back **null** until somebody saves for the first time, which is
+the signal for the page to keep the default text written into `tpl-notes`. That
+way the default lives in exactly one place and the window still renders instantly
+with the database cold or unreachable.
+
+- `content` is required and must not be blank, is capped at **4000** chars, and
+  keeps newlines and tabs while every other control character is stripped.
+- `name` is optional and capped at **40** chars.
+- Both are HTML-escaped on the way out, same as ratings.
+
+`js/glovebox.js` puts that escaped string into the `<pre>` with `innerHTML`, and
+runs it back through a four-line `decode()` for the `<textarea>`, which needs the
+real characters. Decoding is safe here *because* the string is already escaped:
+parsing `&lt;script&gt;` can only ever produce a text node.
 
 ---
 
@@ -138,10 +166,22 @@ in My Pictures, reachable from the desktop icon, the Start menu, or the button o
 the IRIS page. Double-click a thumbnail to open it in the picture viewer, which
 reuses a single window.
 
+**The glovebox is a shared, editable file.** Anyone can hit Edit and rewrite it,
+so treat it like a guestbook. Saves are **append-only rows**, not an UPDATE — the
+newest row is what the site shows, and every previous version is still in the
+table. If somebody wipes it, you can read the history and paste an old one back:
+
+```sql
+SELECT id, editor, created_at, content FROM glovebox ORDER BY id DESC LIMIT 20;
+```
+
+Ctrl/Cmd-S saves, Esc cancels, and Tab indents instead of leaving the box.
+
 **Editing the writing.** Every window's contents are `<template>` blocks near the
 bottom of `index.html` — `tpl-iris`, `tpl-about`, `tpl-rate`, `tpl-pics`,
 `tpl-viewer`, `tpl-notes`, `tpl-bin`. The bio and the properties table are plain
-HTML in `tpl-about`. The captions under each photo are the `PICTURES` object in
+HTML in `tpl-about`; the glovebox's starting text is the `<pre>` inside
+`tpl-notes`, used until the first save lands in the database. The captions under each photo are the `PICTURES` object in
 `js/desktop.js`; the jokes behind Control Panel, Search, Run… and friends are the
 `JOKES` object in the same file.
 

@@ -23,7 +23,7 @@
     rate:  { title: 'Rate Me',       icon: '#ic-star',   tpl: '#tpl-rate',  w: 640, h: 580, status: 'Connected to iris-db' },
     pics:  { title: 'My Pictures',   icon: '#ic-pics',   tpl: '#tpl-pics',  w: 700, h: 520, status: '3 objects' },
     viewer:{ title: 'Picture Viewer',icon: '#ic-pics',   tpl: '#tpl-viewer',w: 720, h: 620, status: '' },
-    notes: { title: 'Glovebox.txt',  icon: '#ic-note',   tpl: '#tpl-notes', w: 440, h: 420, status: 'Plain text' },
+    notes: { title: 'Glovebox.txt',  icon: '#ic-note',   tpl: '#tpl-notes', w: 560, h: 500, status: 'Plain text' },
     bin:   { title: 'Recycle Bin',   icon: '#ic-bin',    tpl: '#tpl-bin',   w: 420, h: 300, status: '0 objects' }
   };
 

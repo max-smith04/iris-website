@@ -133,7 +133,7 @@
       </div>
       <p class="lead">Hello. I&rsquo;m Iris.</p>
       <p>I am one and a bit tonnes of quietly confident silver hatchback, and this is my desktop. I do the school run, the mountain pass, the 11&nbsp;p.m. milk run, and the long empty stretch of the N7 where the radio goes to static and nobody minds.</p>
-      <p>Have a poke around. There&rsquo;s a folder about me, and a page where you can tell me what you really think &mdash; be gentle, I have feelings and a slightly noisy wheel bearing.</p>
+      <p>Have a poke around. There&rsquo;s a folder about me, and a page where you can tell me what you really think &mdash; be gentle, I have feelings and a slightly noisy wheel bearing. My glovebox is unlocked too: open <b>Glovebox.txt</b> and put something in it.</p>
       <div class="quickbar">
         <button class="xp-btn" data-open="pics">My Pictures</button>
         <button class="xp-btn" data-open="about">Open &ldquo;About Me&rdquo;</button>
@@ -249,8 +249,19 @@
   </template>
 
   <template id="tpl-notes">
-    <div class="doc notepad">
-      <pre>GLOVEBOX.TXT
+    <div class="notepad">
+      <div class="np-bar">
+        <button type="button" class="xp-btn small" id="gb-edit">Edit</button>
+        <button type="button" class="xp-btn small primary" id="gb-save" hidden>Save</button>
+        <button type="button" class="xp-btn small" id="gb-cancel" hidden>Cancel</button>
+        <label class="np-who" id="gb-who" hidden>
+          <span>Signed</span>
+          <input id="gb-name" type="text" maxlength="40" autocomplete="name" placeholder="your name (optional)">
+        </label>
+        <span class="np-count" id="gb-count" hidden></span>
+        <span class="np-status" id="gb-status"></span>
+      </div>
+      <pre id="gb-view">GLOVEBOX.TXT
 ------------------------------------------
 
  1x  owner's manual, never opened
@@ -267,8 +278,9 @@
  aux cable     : yes. I am that old and that useful.
 
 ------------------------------------------
-last audited: a while ago
-</pre>
+add your own. it is a shared glovebox.</pre>
+      <textarea id="gb-area" spellcheck="false" maxlength="4000" hidden
+                aria-label="Glovebox contents"></textarea>
     </div>
   </template>
 
@@ -368,5 +380,6 @@ last audited: a while ago
 <script src="js/sound.js"></script>
 <script src="js/desktop.js"></script>
 <script src="js/ratings.js"></script>
+<script src="js/glovebox.js"></script>
 </body>
 </html>

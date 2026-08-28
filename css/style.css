@@ -30,6 +30,7 @@
 }
 
 *, *::before, *::after{ box-sizing: border-box; }
+[hidden]{ display:none !important; }
 
 html, body{ height:100%; }
 body{
@@ -260,11 +261,41 @@ body.booted #desktop[aria-hidden="true"]{ opacity:1; }
 
 .quickbar{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
 
-.notepad{ max-width:none; padding:10px 12px; }
-.notepad pre{
-  margin:0; font-family:"Lucida Console","Courier New",monospace; font-size:12px;
-  line-height:1.5; white-space:pre-wrap; color:#111;
+/* --- Glovebox.txt: a Notepad you can actually type in --- */
+.win[data-win="notes"] .win-body{ overflow:hidden; }
+.notepad{ height:100%; display:flex; flex-direction:column; background:#fff; }
+
+.np-bar{
+  flex:0 0 auto; display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:5px 7px; background:var(--face); border-bottom:1px solid var(--face-lo);
+  box-shadow: inset 0 1px 0 #fff;
 }
+.np-who{ display:flex; align-items:center; gap:5px; font-size:11px; }
+.np-who input{
+  width:150px; font:inherit; font-size:11px; padding:2px 5px;
+  border:1px solid var(--field-brd); background:var(--field); color:#111;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,.10);
+}
+.np-who input:focus{ outline:none; border-color:#2f6fbe; box-shadow: inset 1px 1px 2px rgba(0,0,0,.10), 0 0 0 2px rgba(90,150,240,.35); }
+.np-count{ font-size:10px; color:#8a8a80; font-variant-numeric:tabular-nums; }
+.np-count.over{ color:#b03024; font-weight:700; }
+.np-status{
+  flex:0 1 auto; min-width:0; margin-left:auto; text-align:right;
+  font-size:10px; color:#7a7a72; font-style:italic;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.np-status.err{ color:#b03024; font-style:normal; }
+
+.notepad pre,
+.notepad textarea{
+  flex:1 1 auto; min-height:0; margin:0; width:100%;
+  padding:10px 12px; border:0; resize:none;
+  font-family:"Lucida Console","Courier New",monospace; font-size:12px;
+  line-height:1.5; color:#111; background:#fff;
+  white-space:pre-wrap; word-break:break-word; overflow:auto;
+}
+.notepad textarea{ outline:none; box-shadow: inset 0 0 0 1px #cfd8e6; }
+.notepad textarea:focus{ box-shadow: inset 0 0 0 1px #2f6fbe; }
 
 .empty-state{ text-align:center; padding:30px 10px; color:#6a6a62; }
 .empty-ico{ width:52px; height:52px; opacity:.55; margin:0 auto 10px; display:block; }
@@ -538,6 +569,8 @@ body.muted #volume .mutex{ display:block; }
   .task{ flex-basis:44px; }
   .task span{ display:none; }
   .win-status span:last-child{ display:none; }
+  .np-who input{ width:110px; }
+  .np-status{ margin-left:0; flex-basis:100%; }
   .thumbs{ gap:10px; justify-content:center; }
   .thumb{ width:calc(50% - 6px); }
   .thumb-frame{ width:100%; height:130px; }
