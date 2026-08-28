@@ -1,0 +1,17 @@
+{
+  "name": "iris-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small Windows XP desktop for a silver 2022 Suzuki Swift GL called Iris.",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

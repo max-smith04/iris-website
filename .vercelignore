@@ -1,0 +1,4 @@
+# original camera files and build-only bits — not needed at runtime
+pics/
+sql/
+*.md
