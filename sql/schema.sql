@@ -23,3 +23,16 @@ CREATE TABLE IF NOT EXISTS glovebox (
 );
 
 CREATE INDEX IF NOT EXISTS glovebox_id_desc_idx ON glovebox (id DESC);
+
+-- Pictures visitors add from the My Pictures window. The browser downscales
+-- to 1600px (and a 420px thumbnail) and re-encodes as JPEG before uploading,
+-- so a row is a few hundred KB rather than a whole phone original.
+
+CREATE TABLE IF NOT EXISTS photos (
+  id         BIGSERIAL PRIMARY KEY,
+  caption    TEXT,
+  uploader   TEXT,
+  data       BYTEA       NOT NULL,
+  thumb      BYTEA       NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

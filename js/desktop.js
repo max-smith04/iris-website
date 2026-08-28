@@ -308,28 +308,26 @@
     closeStart();
   });
 
-  /* double-click a thumbnail to open it in the picture viewer */
-  var PICTURES = {
-    'iris-driveway':     'Home, on the bricks, guarded by a guineafowl.',
-    'iris-delivery-day': 'Day one. The bow was not my idea, but I wore it well.',
-    'iris-cederberg':    'Cederberg. I was not designed for this. I did it anyway.'
-  };
-  function openPicture(key, caption) {
-    if (!PICTURES[key]) return;
+  /* double-click a thumbnail to open it in the picture viewer. Everything the
+     viewer needs rides on the thumbnail itself, so uploaded photos work the
+     same way as the three that ship with the site. */
+  function openPicture(t) {
+    if (!t || !t.dataset.full) return;
     var el = open.viewer ? (focusWin('viewer'), open.viewer.el) : openWin('viewer');
     var img = el.querySelector('#viewer-img');
     var cap = el.querySelector('#viewer-cap');
-    img.src = 'assets/pictures/' + key + '.jpg';
-    img.alt = caption || PICTURES[key];
-    cap.textContent = PICTURES[key];
-    el.querySelector('.win-caption').textContent = key + '.jpg';
-    el.querySelector('.win-status span').textContent = key + '.jpg';
-    open.viewer.task.querySelector('span').textContent = key + '.jpg';
+    var name = t.dataset.name || 'picture.jpg';
+    img.src = t.dataset.full;
+    img.alt = t.dataset.caption || name;
+    cap.textContent = t.dataset.caption || '';
+    el.querySelector('.win-caption').textContent = name;
+    el.querySelector('.win-status span').textContent = name;
+    open.viewer.task.querySelector('span').textContent = name;
     el.querySelector('.win-body').scrollTop = 0;
   }
   document.addEventListener('dblclick', function (e) {
     var t = e.target.closest('.thumb');
-    if (t) openPicture(t.dataset.pic, t.dataset.caption);
+    if (t) openPicture(t);
   });
   document.addEventListener('click', function (e) {
     var t = e.target.closest('.thumb');
@@ -339,7 +337,7 @@
     });
     var now = Date.now();
     if (lastThumb.el === t && now - lastThumb.t < 450) {      /* touch double-tap */
-      openPicture(t.dataset.pic, t.dataset.caption);
+      openPicture(t);
       lastThumb = { el: null, t: 0 };
     } else {
       lastThumb = { el: t, t: now };
@@ -349,7 +347,7 @@
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var t = document.activeElement && document.activeElement.closest
           ? document.activeElement.closest('.thumb') : null;
-    if (t) { e.preventDefault(); openPicture(t.dataset.pic, t.dataset.caption); }
+    if (t) { e.preventDefault(); openPicture(t); }
   });
   var lastThumb = { el: null, t: 0 };
 

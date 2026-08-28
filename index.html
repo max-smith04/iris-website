@@ -215,22 +215,35 @@
   <template id="tpl-pics">
     <div class="doc pics">
       <h2>My Pictures</h2>
-      <p class="muted">Three of me. Double-click one to open it properly.</p>
+      <p class="muted">Double-click one to open it properly. Got a photo of me? Add it.</p>
+
+      <div class="pic-bar">
+        <button type="button" class="xp-btn small primary" id="pic-add">Add pictures&hellip;</button>
+        <input type="file" id="pic-file" accept="image/*" multiple hidden>
+        <label class="pic-who"><span>From</span>
+          <input id="pic-name" type="text" maxlength="40" autocomplete="name" placeholder="your name (optional)">
+        </label>
+        <span class="pic-status" id="pic-status"></span>
+      </div>
+
       <ul class="thumbs">
         <li>
-          <button class="thumb" data-pic="iris-driveway" data-caption="Home, on the bricks">
+          <button class="thumb" data-full="assets/pictures/iris-driveway.jpg"
+                  data-name="iris-driveway.jpg" data-caption="Home, on the bricks, guarded by a guineafowl.">
             <span class="thumb-frame"><img src="assets/pictures/iris-driveway-thumb.jpg" width="236" height="420" loading="lazy" alt="Iris parked on a paved driveway on a grey morning, palm trees and a guineafowl behind her."></span>
             <span class="thumb-name">iris-driveway.jpg</span>
           </button>
         </li>
         <li>
-          <button class="thumb" data-pic="iris-delivery-day" data-caption="Day one">
+          <button class="thumb" data-full="assets/pictures/iris-delivery-day.jpg"
+                  data-name="iris-delivery-day.jpg" data-caption="Day one. The bow was not my idea, but I wore it well.">
             <span class="thumb-frame"><img src="assets/pictures/iris-delivery-day-thumb.jpg" width="315" height="420" loading="lazy" alt="Iris in the showroom on delivery day wearing an enormous red ribbon across her bonnet."></span>
             <span class="thumb-name">iris-delivery-day.jpg</span>
           </button>
         </li>
         <li>
-          <button class="thumb" data-pic="iris-cederberg" data-caption="Cederberg">
+          <button class="thumb" data-full="assets/pictures/iris-cederberg.jpg"
+                  data-name="iris-cederberg.jpg" data-caption="Cederberg. I was not designed for this. I did it anyway.">
             <span class="thumb-frame"><img src="assets/pictures/iris-cederberg-thumb.jpg" width="420" height="315" loading="lazy" alt="Iris parked among fynbos on a dirt track in the Cederberg with mountains behind her."></span>
             <span class="thumb-name">iris-cederberg.jpg</span>
           </button>
@@ -377,5 +390,6 @@
 <script src="js/desktop.js"></script>
 <script src="js/ratings.js"></script>
 <script src="js/glovebox.js"></script>
+<script src="js/photos.js"></script>
 </body>
 </html>

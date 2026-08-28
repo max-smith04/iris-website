@@ -69,9 +69,11 @@ js/sound.js             startup + shutdown sounds, and the synthesised error din
 js/desktop.js           boot, window manager, taskbar, Start menu, clock, picture viewer
 js/ratings.js           the Rate Me widget
 js/glovebox.js          the editable Glovebox.txt
+js/photos.js            "Add pictures" — shrinks in the browser, then uploads
 api/ratings.js          GET + POST, Neon, server-side validation and escaping
 api/glovebox.js         GET + POST, the shared editable text file
-sql/schema.sql          both tables
+api/photos.js           GET + POST, visitor photo uploads (also serves the bytes)
+sql/schema.sql          all three tables
 assets/wallpaper.jpg    the desktop background
 assets/pictures/        the three photos (full frame) plus their thumbnails
 assets/audio/           startup.mp3, shutdown.mp3
@@ -180,6 +182,25 @@ that if someone empties it out of spite you can read an old version back:
 
 ```sql
 SELECT id, editor, created_at, content FROM glovebox ORDER BY id DESC LIMIT 20;
+```
+
+**Anyone can add pictures.** The My Pictures window has an *Add pictures…*
+button; uploads go into Postgres as `bytea` and are served back from
+`/api/photos?id=7` (add `&t=1` for the thumbnail), cached immutably since ids are
+never reused.
+
+Storing images in Postgres is only sensible because the browser shrinks them
+first — `js/photos.js` redraws each one on a canvas at 1600px (420px for the
+thumbnail) and re-encodes as JPEG, so a 3 MB phone original arrives as about
+380 KB. The server checks the actual magic bytes rather than trusting the
+filename, refuses anything that is not a JPEG, caps a full image at 1.6 MB and a
+thumbnail at 200 KB, and stops at 60 photos so a free Neon tier cannot be filled
+with somebody's camera roll. Adjust `MAX_PHOTOS` in `api/photos.js` if you want
+more, and delete unwanted ones by hand:
+
+```sql
+SELECT id, uploader, created_at, length(data) FROM photos ORDER BY id DESC;
+DELETE FROM photos WHERE id = 7;
 ```
 
 **Editing the writing.** Every window's contents are `<template>` blocks near the
